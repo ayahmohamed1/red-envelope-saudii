@@ -1,5 +1,5 @@
 /* =============================================
-   GLOBAL STYLES — Birthday Gift Website
+   GLOBAL STYLES — Pink & White Aesthetic
    ============================================= */
 
 *, *::before, *::after {
@@ -9,19 +9,35 @@
 }
 
 :root {
-  --font-display: 'Caveat', cursive;
-  --font-body: 'Nunito', sans-serif;
-  --bg-light: #eceeef;       
-  --red-main: #da292e;       
-  --text-dark: #222222;
+  --font-display: 'Caveat', 'Cairo', sans-serif;
+  --font-body: 'Nunito', 'Cairo', sans-serif;
+  
+  /* Pink & White Color Palette */
+  --bg-soft-pink: #fff0f3;
+  --bg-gradient: linear-gradient(135deg, #fff5f7 0%, #ffe4e9 40%, #fce7f3 75%, #fed7e2 100%);
   --white: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.95);
+  
+  --pink-primary: #ec4899;
+  --pink-deep: #db2777;
+  --pink-dark-rose: #9d174d;
+  --text-heading: #831843;
+  --text-body: #4c1d35;
+  --text-muted: #9f4f71;
+  
+  --pink-border: rgba(244, 114, 182, 0.35);
+  --pink-shadow: 0 20px 45px rgba(244, 114, 182, 0.22), 0 6px 18px rgba(219, 39, 119, 0.08);
+  --pink-btn-shadow: 0 8px 24px rgba(219, 39, 119, 0.35);
 }
 
 html, body {
   width: 100%;
   height: 100%;
   overflow-x: hidden;
-  background-color: var(--bg-light);
+  background: var(--bg-soft-pink);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-body);
 }
 
 body {
@@ -33,16 +49,17 @@ body {
   font-family: var(--font-display);
 }
 
-.text-xl {
-  font-size: clamp(2rem, 5vw, 3rem);
-  color: var(--text-dark);
-}
-
+/* =============================================
+   PAGE CONTAINER & SCREENS
+   ============================================= */
 .gift-page {
   width: 100%;
   min-height: 100vh;
   position: relative;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .screen {
@@ -54,389 +71,444 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1), transform 0.55s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.55s;
+  padding: 20px;
+  z-index: 10;
 }
 
 .screen.visible {
   opacity: 1;
   transform: scale(1) translateY(0);
   visibility: visible;
-  z-index: 10;
+  pointer-events: auto;
+}
+
+.screen.fade-enter {
+  animation: screenFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes screenFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .screen.hidden {
   opacity: 0;
-  transform: scale(0.95) translateY(20px);
+  transform: scale(0.96) translateY(24px);
   visibility: hidden;
   pointer-events: none;
-  z-index: 1;
 }
 
 .screen.exit {
   opacity: 0;
-  transform: scale(1.05) translateY(-30px);
+  transform: scale(1.08) translateY(-25px);
   visibility: hidden;
+  pointer-events: none;
 }
 
 /* =============================================
-   SCREEN 1: INTRO (الظرف)
+   🦢 SWAN BACKGROUND ANIMATIONS
    ============================================= */
-.intro-screen {
-  background-color: var(--bg-light);
-  cursor: pointer;
+.swan-background-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  user-select: none;
 }
 
-.intro-content {
+.pink-ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.glow-1 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, #fbcfe8 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+  animation: glowPulse 8s ease-in-out infinite alternate;
+}
+
+.glow-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #f9a8d4 0%, transparent 70%);
+  bottom: -150px;
+  right: -120px;
+  animation: glowPulse 10s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes glowPulse {
+  0% { transform: scale(1) translate(0, 0); opacity: 0.35; }
+  100% { transform: scale(1.15) translate(25px, 20px); opacity: 0.55; }
+}
+
+/* حركة عبور البجعة عبر الشاشة */
+.swan-drift-track {
+  position: absolute;
+  will-change: transform;
+}
+
+.swan-drift-track.dir-left-to-right {
+  animation: driftRight linear infinite;
+}
+
+.swan-drift-track.dir-right-to-left {
+  animation: driftLeft linear infinite;
+}
+
+@keyframes driftRight {
+  0% {
+    transform: translateX(-15vw);
+  }
+  100% {
+    transform: translateX(115vw);
+  }
+}
+
+@keyframes driftLeft {
+  0% {
+    transform: translateX(115vw);
+  }
+  100% {
+    transform: translateX(-15vw);
+  }
+}
+
+/* تمايل البجعة بلطف كأنها تعوم على الماء */
+.swan-bobbing {
+  display: inline-block;
+  animation: swanBob ease-in-out infinite alternate;
+  will-change: transform;
+  filter: drop-shadow(0 4px 10px rgba(244, 114, 182, 0.25));
+}
+
+@keyframes swanBob {
+  0% {
+    transform: translateY(0px) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(2px) rotate(-2deg);
+  }
+}
+
+/* =============================================
+   ✉️ ENVELOPE SCREENS (لون الظرف يظل كما هو دون تغيير)
+   ============================================= */
+.envelope-screen {
+  cursor: pointer;
+  z-index: 10;
+}
+
+.envelope-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 30px 40px;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 15px 35px rgba(244, 114, 182, 0.15);
+  max-width: 440px;
+  width: 90%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.envelope-screen:hover .envelope-content {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(244, 114, 182, 0.25);
+}
+
+.step-counter-badge {
+  background: #ffffff;
+  color: var(--pink-deep);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 5px 16px;
+  border-radius: 20px;
+  box-shadow: 0 3px 10px rgba(219, 39, 119, 0.15);
+  letter-spacing: 0.5px;
+  border: 1px solid var(--pink-border);
+}
+
+.top-title {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  color: var(--text-heading);
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.bottom-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: var(--text-heading);
+  line-height: 1.1;
+}
+
+/* حاوية صورة الظرف — مع الاحتفاظ بالألوان الأصلية */
+.envelope-wrapper {
+  margin: 10px 0;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.envelope-screen:hover .envelope-wrapper {
+  transform: scale(1.08) rotate(1deg);
+}
+
+/* ⚠️ شرط المستخدم: لون الظرف يفضل زي ما هو بدون أي فلتر تلوين */
+.envelope-img-unfiltered {
+  filter: none !important;
+  object-fit: contain;
+  border-radius: 8px;
+  transition: filter 0.3s ease;
+}
+
+.click-hint {
+  font-size: 0.95rem;
+  color: var(--pink-dark-rose);
+  font-weight: 600;
+  animation: pulseHint 2s infinite ease-in-out;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+@keyframes pulseHint {
+  0%, 100% { opacity: 0.6; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+/* =============================================
+   💌 MESSAGE SCREENS (بينك وأبيض مع زرار what we gonna do / next)
+   ============================================= */
+.message-screen, .completed-screen {
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.message-card-wrapper {
+  width: 100%;
+  max-width: 650px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.message-card {
+  width: 100%;
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 28px;
+  border: 1px solid var(--pink-border);
+  box-shadow: var(--pink-shadow);
+  padding: 36px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.message-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #f472b6, #db2777, #f472b6);
+}
+
+.message-card-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  width: 100%;
 }
 
-.envelope-wrapper {
-  margin: 10px 0;
-  transition: transform 0.3s ease;
-}
-
-.intro-screen:hover .envelope-wrapper {
-  transform: scale(1.05);
-}
-
-.click-hint {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  color: #888;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-}
-
-/* =============================================
-   SCREEN 2: MESSAGE CARD
-   ============================================= */
-.card-screen {
-  background-color: var(--bg-light);
-}
-
-.red-card {
-  background-color: var(--red-main);
-  border-radius: 16px;
-  color: var(--white);
-  box-shadow: 0 10px 30px rgba(218, 41, 46, 0.3);
-}
-
-.from-to-card {
-  width: 90%;
-  max-width: 850px; 
-  min-height: 400px; 
-  padding: 50px 60px; 
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.card-header {
-  font-size: 2.2rem; /* ✨ تم تعديل الحجم ليطابق "Happy Birthday" */
-  margin-bottom: 20px;
-  line-height: 1.2;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.card-body .mb-2 {
-  font-size: 2.2rem; /* ✨ تم تكبير الكلمة لتطابق حجم From و To */
-}
-
-.card-body .message-text {
-  font-size: 1.4rem; /* نص الرسالة يظل بنفس الحجم الأصغر */
-  line-height: 1.5;
-  margin-bottom: 30px;
-}
-
-.card-footer {
-  text-align: center;
-}
-
-.see-attachment {
-  background: transparent;
-  border: none;
-  color: var(--white);
-  font-size: 1.6rem;
-  text-decoration: underline;
-  cursor: pointer;
-  transition: opacity 0.3s;
-}
-
-.see-attachment:hover {
-  opacity: 0.8;
-}
-
-/* =============================================
-   SCREEN 3: BIRTHDAY
-   ============================================= */
-.birthday-screen {
-  background-color: var(--red-main);
-  padding: 20px;
+/* 🖼️ فريم خفيف وناعم للمسدجات مع شريط سكرول مريح */
+.message-frame-box {
+  width: 100%;
+  max-height: clamp(280px, 54vh, 440px);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(255, 245, 247, 0.65);
+  border: 1px solid rgba(244, 114, 182, 0.35);
+  border-radius: 22px;
+  padding: 24px 22px;
+  box-shadow: inset 0 2px 6px rgba(244, 114, 182, 0.06);
+
+  /* أنيميشن وشكل شريط التمرير السكرول */
+  scrollbar-width: thin;
+  scrollbar-color: #f472b6 rgba(254, 226, 235, 0.5);
 }
 
-.birthday-inner {
-  width: 100%;
-  max-width: 500px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 0;
+.message-frame-box::-webkit-scrollbar {
+  width: 6px;
 }
 
-.birthday-image-wrapper {
-  width: 250px;
-  height: 250px;
-  position: relative;
-  margin-bottom: 30px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
-
-.birthday-image {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-}
-
-.birthday-text-container {
-  color: var(--white);
-  text-align: center;
-}
-
-.birthday-text-container .title {
-  font-size: 2.2rem;
-  margin-bottom: 15px;
-}
-
-.birthday-text-container .paragraph {
-  font-size: 1.4rem;
-  line-height: 1.5;
-  opacity: 0.95;
-}
-
-.next-arrow {
-  background: transparent;
-  border: none;
-  color: var(--white);
-  font-size: 3rem;
-  margin-top: 30px;
-  cursor: pointer;
-  animation: bounceRight 2s infinite;
-}
-
-@keyframes bounceRight {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(10px); }
-}
-
-/* =============================================
-   SCREEN 4: COLLAGE
-   ============================================= */
-.collage-screen {
-  background-color: var(--bg-light);
-  overflow-y: auto;
-}
-
-.collage-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 20px;
-  width: 100%;
-  max-width: 500px;
-}
-
-.title-dark {
-  font-size: 3rem;
-  color: var(--red-main);
-  margin-bottom: 30px;
-}
-
-.pics-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  width: 100%;
-  margin-bottom: 40px;
-}
-
-.pic-frame {
-  position: relative;
-  aspect-ratio: 1;
-  background: var(--white);
-  padding: 8px;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  transform: rotate(calc(var(--rot, 0) * 1deg));
-}
-
-.pic-frame:nth-child(odd) { --rot: -2; }
-.pic-frame:nth-child(even) { --rot: 2; }
-
-.collage-img-inner {
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.next-button {
-  background: var(--red-main);
-  color: var(--white);
-  border: none;
-  padding: 12px 30px;
-  border-radius: 30px;
-  font-size: 1.2rem;
-  font-family: var(--font-body);
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(218, 41, 46, 0.4);
-  transition: transform 0.3s;
-}
-
-.next-button:hover {
-  transform: translateY(-3px);
-}
-
-/* =============================================
-   SCREEN 5: MUSIC PLAYER
-   ============================================= */
-.music-screen {
-  background-color: var(--bg-light);
-}
-
-.music-player-card {
-  background-color: var(--red-main);
-  width: 90%;
-  max-width: 400px;
-  border-radius: 24px;
-  padding: 40px 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 15px 40px rgba(218, 41, 46, 0.35);
-}
-
-.album-art {
-  position: relative;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%; /* ✨ عادت للدائرة هنا */
-  overflow: hidden;
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  margin-bottom: 25px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
-
-.album-img {
-  object-fit: cover;
-}
-
-.song-title {
-  color: var(--white);
-  font-size: 2rem;
-  margin-bottom: 25px;
-  text-align: center;
-}
-
-/* ✨ حاوية الشريط والوقت */
-.slider-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  margin-bottom: 30px;
-}
-
-.time-text {
-  font-family: var(--font-body);
-  color: var(--white);
-  font-size: 0.9rem;
-  min-width: 35px;
-  text-align: center;
-  font-weight: bold;
-}
-
-/* شريط التمرير */
-.progress-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  flex: 1;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.3);
+.message-frame-box::-webkit-scrollbar-track {
+  background: rgba(254, 226, 235, 0.5);
   border-radius: 10px;
+}
+
+.message-frame-box::-webkit-scrollbar-thumb {
+  background: #f472b6;
+  border-radius: 10px;
+}
+
+.message-frame-box::-webkit-scrollbar-thumb:hover {
+  background: #db2777;
+}
+
+.message-paragraph {
+  font-size: clamp(1.3rem, 3.4vw, 1.58rem);
+  color: var(--text-body);
+  line-height: 1.8;
+  margin: 0;
+  white-space: pre-line;
+  word-break: break-word;
+  text-align: center;
+}
+
+/* =============================================
+   🔘 BUTTONS (what we gonna do & next)
+   ============================================= */
+.action-button-wrapper {
+  margin-top: 15px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.pink-pill-btn {
+  background: linear-gradient(135deg, #f472b6 0%, #db2777 100%);
+  color: var(--white);
+  border: none;
+  font-size: clamp(1.4rem, 3.5vw, 1.8rem);
+  font-weight: 700;
+  padding: 14px 42px;
+  border-radius: 40px;
+  cursor: pointer;
+  box-shadow: var(--pink-btn-shadow);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   outline: none;
-  cursor: pointer;
-  background-image: linear-gradient(var(--white), var(--white));
-  background-repeat: no-repeat;
 }
 
-.progress-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
+.pink-pill-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 12px 28px rgba(219, 39, 119, 0.5);
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+}
+
+.pink-pill-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.restart-btn {
+  font-size: 1.5rem;
+  padding: 12px 36px;
+}
+
+.swan-icon-large {
+  font-size: 3.5rem;
+  filter: drop-shadow(0 6px 12px rgba(244, 114, 182, 0.3));
+  animation: swanBob 3s ease-in-out infinite alternate;
+}
+
+/* =============================================
+   🎵 FLOATING MUSIC BUTTON
+   ============================================= */
+.music-floating-btn {
+  position: fixed;
+  top: 22px;
+  right: 22px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
-  background: var(--white);
-  cursor: pointer;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-  transition: transform 0.1s;
-}
-
-.progress-slider::-webkit-slider-thumb:active {
-  transform: scale(1.2);
-}
-
-.progress-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--white);
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-  transition: transform 0.1s;
-}
-
-.progress-slider::-moz-range-thumb:active {
-  transform: scale(1.2);
-}
-
-.controls {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid var(--pink-border);
+  box-shadow: 0 6px 16px rgba(219, 39, 119, 0.2);
   display: flex;
-  justify-content: center;
   align-items: center;
-}
-
-.play-btn {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--white);
-  color: var(--red-main);
-  border: none;
-  font-size: 1.8rem;
-  display: flex;
   justify-content: center;
-  align-items: center;
   cursor: pointer;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  transition: transform 0.2s;
+  z-index: 100;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.play-btn:active {
-  transform: scale(0.95);
+.music-floating-btn:hover {
+  transform: scale(1.1);
+  background: #ffffff;
 }
 
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.text-center { text-align: center; }
-.text-white { color: var(--white); }
+.music-floating-btn.playing {
+  border-color: var(--pink-deep);
+  animation: pulseMusic 2s infinite ease-in-out;
+}
+
+@keyframes pulseMusic {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(219, 39, 119, 0.35); }
+  50% { box-shadow: 0 0 0 8px rgba(219, 39, 119, 0); }
+}
+
+.music-icon {
+  font-size: 1.2rem;
+}
+
+/* =============================================
+   📱 RESPONSIVE ADJUSTMENTS
+   ============================================= */
+@media (max-width: 600px) {
+  .message-card {
+    padding: 35px 22px;
+    border-radius: 26px;
+  }
+
+  .envelope-content {
+    padding: 24px 20px;
+    border-radius: 26px;
+  }
+
+  .pink-pill-btn {
+    padding: 12px 32px;
+  }
+
+  .top-title {
+    font-size: 2.2rem;
+  }
+
+  .bottom-title {
+    font-size: 1.8rem;
+  }
+}

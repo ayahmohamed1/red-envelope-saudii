@@ -1,223 +1,207 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import type { GiftData } from '@/lib/giftData'
+import SwanBackground from './SwanBackground'
 
 interface Props {
   data: GiftData
 }
 
-type ScreenType = 'intro' | 'card' | 'birthday' | 'collage' | 'music'
+type Stage = 'initial_envelope' | 'initial_message' | 'activity_envelope' | 'activity_message'
 
 export default function GiftClient({ data }: Props) {
-  // ✨ المتغير الجديد لحل مشكلة الـ Hydration
   const [isMounted, setIsMounted] = useState(false)
-  
-  const [screen, setScreen] = useState<ScreenType>('intro')
-  const [introExiting, setIntroExiting] = useState(false)
-  const [musicPlaying, setMusicPlaying] = useState(false)
-  const [progress, setProgress] = useState(0)
-  
-  const [currentTimeStr, setCurrentTimeStr] = useState("0:00")
-  const [durationStr, setDurationStr] = useState("0:00")
+  const [stage, setStage] = useState<Stage>('initial_envelope')
+  const [currentActivityIndex, setCurrentActivityIndex] = useState(0)
+  const [isOpeningEnvelope, setIsOpeningEnvelope] = useState(false)
 
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-
-  const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00"
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  // مساعدة لتنسيق النصوص سواء كُتبت كنص متعدد الأسطر أو مصفوفة
+  const formatText = (text: string | string[] | undefined): string => {
+    if (!text) return ''
+    if (Array.isArray(text)) return text.join('\n')
+    return text
   }
 
-  // التأكد من تحميل الكومبوننت على المتصفح أولاً
+  // قائمة الأنشطة (6 خطوات)
+  const activities = data.activities || []
+  const totalActivities = activities.length > 0 ? activities.length : 6
+
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
-  useEffect(() => {
-    if (data.musicUrl) {
-      const audio = new Audio(data.musicUrl)
-      audio.loop = true
-      audio.volume = 0.5
-      audioRef.current = audio
-
-      audio.addEventListener('loadedmetadata', () => {
-        setDurationStr(formatTime(audio.duration))
-      })
-
-      audio.addEventListener('timeupdate', () => {
-        if (audio.duration) {
-          setProgress((audio.currentTime / audio.duration) * 100)
-          setCurrentTimeStr(formatTime(audio.currentTime))
-        }
-      })
-    }
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.src = ""
-      }
-    }
-  }, [data.musicUrl])
-
-  const navigateTo = useCallback((newScreen: ScreenType) => {
-    window.history.pushState({ screen: newScreen }, '')
-    setScreen(newScreen)
-  }, [])
-
-  useEffect(() => {
-    if (!isMounted) return
-    window.history.replaceState({ screen: 'intro' }, '')
-    const handlePopState = (event: PopStateEvent) => {
-      if (event.state && event.state.screen) {
-        setScreen(event.state.screen)
-      } else {
-        setScreen('intro')
-      }
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [isMounted])
-
-  const handleEnvelopeClick = useCallback(() => {
-    if (screen !== 'intro') return
-    setIntroExiting(true)
+  // التعامل مع فتح الظرف الأول
+  const handleOpenInitialEnvelope = useCallback(() => {
+    if (stage !== 'initial_envelope' || isOpeningEnvelope) return
+    setIsOpeningEnvelope(true)
     setTimeout(() => {
-      navigateTo('card') 
-      setIntroExiting(false)
-    }, 600)
-  }, [screen, navigateTo])
+      setStage('initial_message')
+      setIsOpeningEnvelope(false)
+    }, 450)
+  }, [stage, isOpeningEnvelope])
 
-  const toggleMusic = useCallback(() => {
-    if (!audioRef.current) return
-    if (musicPlaying) {
-      audioRef.current.pause()
-      setMusicPlaying(false)
-    } else {
-      audioRef.current.play().catch(() => {})
-      setMusicPlaying(true)
-    }
-  }, [musicPlaying])
-
-  const handleSeek = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = Number(e.target.value)
-    setProgress(val)
-    if (audioRef.current && audioRef.current.duration) {
-      const newTime = (val / 100) * audioRef.current.duration
-      audioRef.current.currentTime = newTime
-      setCurrentTimeStr(formatTime(newTime))
-    }
+  // عند الضغط على زر "what we gonna do"
+  const handleWhatWeGonnaDo = useCallback(() => {
+    setCurrentActivityIndex(0)
+    setStage('activity_envelope')
   }, [])
 
-  // ✨ إيقاف الريندر حتى يتم التحميل على المتصفح لمنع خطأ Hydration
+  // التعامل مع فتح ظرف الخطوة الحالية
+  const handleOpenActivityEnvelope = useCallback(() => {
+    if (stage !== 'activity_envelope' || isOpeningEnvelope) return
+    setIsOpeningEnvelope(true)
+    setTimeout(() => {
+      setStage('activity_message')
+      setIsOpeningEnvelope(false)
+    }, 450)
+  }, [stage, isOpeningEnvelope])
+
+  // عند الضغط على زر "next" في صفحة الرسالة
+  const handleNextActivity = useCallback(() => {
+    if (currentActivityIndex < totalActivities - 1) {
+      setCurrentActivityIndex((prev) => prev + 1)
+      setStage('activity_envelope')
+    }
+  }, [currentActivityIndex, totalActivities])
+
+  // إعادة البدء من الأول (زرار start over)
+  const handleRestart = useCallback(() => {
+    setCurrentActivityIndex(0)
+    setStage('initial_envelope')
+  }, [])
+
   if (!isMounted) {
     return null
   }
 
+  const currentActivity = activities[currentActivityIndex] || {
+    text: 'A special surprise for you!',
+  }
+
+  const isLastActivity = currentActivityIndex === totalActivities - 1
+
   return (
-    <div className="gift-page">
+    <div className="gift-page pink-theme">
+      {/* 🦢 خلفية البجعات المتحركة */}
+      <SwanBackground />
 
-      {/* ── SCREEN 1: INTRO (الظرف) ── */}
-      <div
-        className={`screen intro-screen ${
-          screen === 'intro' ? (introExiting ? 'exit' : 'visible') : 'hidden'
-        }`}
-        onClick={handleEnvelopeClick}
-      >
-        <div className="intro-content">
-          <p className="handwritten text-xl">hey babe!</p>
-          <div className="envelope-wrapper">
-            <Image src={data.envelopeImage} alt="Envelope" width={280} height={200} className="envelope-image" priority />
-          </div>
-          <p className="handwritten text-xl">you've got new emails</p>
-          <p className="click-hint">(tap anywhere)</p>
-        </div>
-      </div>
-
-      {/* ── SCREEN 2: MESSAGE CARD (الكارت الأحمر العريض) ── */}
-      <div className={`screen card-screen ${screen === 'card' ? 'visible' : 'hidden'}`}>
-        <div className="red-card from-to-card">
-          <div className="card-header">
-            <p className="handwritten">From: {data.senderName}</p>
-            <p className="handwritten">To: {data.receiverName}</p>
-          </div>
-          <div className="card-body">
-            <p className="handwritten mb-2">Message:</p>
-            <p className="handwritten message-text">{data.cardMessage}</p>
-          </div>
-          <div className="card-footer">
-            <button className="handwritten see-attachment" onClick={() => navigateTo('birthday')}>
-              see attachment
-            </button>
+      {/* ── 1. الظرف الأول ── */}
+      {stage === 'initial_envelope' && (
+        <div
+          className={`screen envelope-screen visible ${isOpeningEnvelope ? 'exit' : 'fade-enter'}`}
+          onClick={handleOpenInitialEnvelope}
+        >
+          <div className="envelope-content">
+            <p className="handwritten text-xl top-title">hey jojo!</p>
+            <div className="envelope-wrapper">
+              <Image
+                src={data.envelopeImage}
+                alt="Envelope"
+                width={290}
+                height={210}
+                className="envelope-img-unfiltered"
+                priority
+              />
+            </div>
+            <p className="handwritten text-xl bottom-title">you've got a surprise</p>
+            <p className="click-hint">(tap to open 💌)</p>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* ── SCREEN 3: BIRTHDAY (الصورة والرسالة) ── */}
-      <div className={`screen birthday-screen ${screen === 'birthday' ? 'visible' : 'hidden'}`}>
-        <div className="birthday-inner">
-          <div className="birthday-image-wrapper">
-            <Image src={data.birthdayImage} alt={`Birthday Pic`} width={400} height={400} className="birthday-image" priority />
-          </div>
-          <div className="birthday-text-container">
-            <h2 className="handwritten title">{data.birthdayTitle}</h2>
-            <p className="handwritten paragraph">{data.birthdayText}</p>
-          </div>
-          <button className="next-arrow" onClick={() => navigateTo('collage')}>
-            →
-          </button>
-        </div>
-      </div>
+      {/* ── 2. الرسالة الأولى (فقط تظهر في مرحلتها لمنع أي تداخل مع الرسائل التالية) ── */}
+      {stage === 'initial_message' && (
+        <div className="screen message-screen visible fade-enter">
+          <div className="message-card-wrapper">
+            <div className="message-card">
+              <div className="message-card-inner">
+                <div className="message-frame-box">
+                  <p className="handwritten message-paragraph" dir="auto">
+                    {formatText(data.initialMessageText || data.birthdayText)}
+                  </p>
+                </div>
 
-      {/* ── SCREEN 4: COLLAGE (الـ 4 صور) ── */}
-      <div className={`screen collage-screen ${screen === 'collage' ? 'visible' : 'hidden'}`}>
-        <div className="collage-container">
-          <h2 className="handwritten title-dark">pics of us</h2>
-          <div className="pics-grid">
-            {data.collageImages && data.collageImages.map((img, idx) => (
-              <div key={idx} className="pic-frame">
-                <Image src={img} alt={`Memory ${idx + 1}`} fill className="collage-img-inner" />
+                <div className="action-button-wrapper">
+                  <button
+                    id="what-we-gonna-do-btn"
+                    className="pink-pill-btn handwritten"
+                    onClick={handleWhatWeGonnaDo}
+                  >
+                    what we gonna do ✨
+                  </button>
+                </div>
               </div>
-            ))}
-          </div>
-          <button className="next-button" onClick={() => navigateTo('music')}>
-            one more thing...
-          </button>
-        </div>
-      </div>
-
-      {/* ── SCREEN 5: MUSIC PLAYER (مشغل الأغنية) ── */}
-      <div className={`screen music-screen ${screen === 'music' ? 'visible' : 'hidden'}`}>
-        <div className="music-player-card">
-          <h2 className="handwritten text-center mb-4 text-white text-2xl">Our Track</h2>
-          <div className="album-art">
-            <Image src={data.musicCoverImage} alt="Song Cover" fill className="album-img" />
-          </div>
-          <h3 className="handwritten song-title">{data.songTitle}</h3>
-          
-          <div className="slider-container">
-            <span className="time-text">{currentTimeStr}</span>
-            <input 
-              type="range" 
-              min="0" 
-              max="100" 
-              value={progress} 
-              onChange={handleSeek}
-              className="progress-slider"
-              style={{ backgroundSize: `${progress}% 100%` }}
-            />
-            <span className="time-text">{durationStr}</span>
-          </div>
-
-          <div className="controls">
-            <button className="play-btn" onClick={toggleMusic}>
-              {musicPlaying ? '⏸' : '▶'}
-            </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* ── 3. أظرف الأنشطة (يتكرر 6 مرات) ── */}
+      {stage === 'activity_envelope' && (
+        <div
+          key={`envelope-${currentActivityIndex}`}
+          className={`screen envelope-screen visible ${isOpeningEnvelope ? 'exit' : 'fade-enter'}`}
+          onClick={handleOpenActivityEnvelope}
+        >
+          <div className="envelope-content">
+            <span className="step-counter-badge">
+              {currentActivityIndex + 1} / {totalActivities}
+            </span>
+            <p className="handwritten text-xl top-title">For {data.receiverName}</p>
+            <div className="envelope-wrapper">
+              <Image
+                src={data.envelopeImage}
+                alt={`Envelope ${currentActivityIndex + 1}`}
+                width={290}
+                height={210}
+                className="envelope-img-unfiltered"
+                priority
+              />
+            </div>
+            <p className="handwritten text-xl bottom-title">tap to reveal</p>
+            <p className="click-hint">(click the envelope 💌)</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── 4. رسائل الأنشطة (في آخر رسالة يظهر زرار start over بدلاً من next) ── */}
+      {stage === 'activity_message' && (
+        <div key={`message-${currentActivityIndex}`} className="screen message-screen visible fade-enter">
+          <div className="message-card-wrapper">
+            <div className="message-card">
+              <div className="message-card-inner">
+                <div className="message-frame-box">
+                  <p className="handwritten message-paragraph" dir="auto">
+                    {formatText(currentActivity.text)}
+                  </p>
+                </div>
+
+                <div className="action-button-wrapper">
+                  {isLastActivity ? (
+                    <button
+                      id="start-over-btn"
+                      className="pink-pill-btn handwritten restart-btn"
+                      onClick={handleRestart}
+                    >
+                      start over ↺
+                    </button>
+                  ) : (
+                    <button
+                      id="next-activity-btn"
+                      className="pink-pill-btn handwritten"
+                      onClick={handleNextActivity}
+                    >
+                      next →
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

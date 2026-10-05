@@ -9,8 +9,7 @@ export const metadata: Metadata = {
     description: 'A heartfelt birthday message just for you.',
     images: [
       {
-        // 👇 حطينا اللينك الكامل للموقع هنا
-        url: 'https://loveyouuu-lyart.vercel.app/images/share-cover.png', 
+        url: 'https://loveyouuu-lyart.vercel.app/images/share-cover.png',
         width: 1200,
         height: 630,
         alt: 'A Special Gift',
@@ -29,7 +28,10 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Cairo:wght@400;600;700&family=Nunito:wght@300;400;600;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body>{children}</body>
     </html>
