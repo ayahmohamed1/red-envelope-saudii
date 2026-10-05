@@ -9,8 +9,10 @@
 }
 
 :root {
-  --font-display: 'Caveat', 'Cairo', sans-serif;
-  --font-body: 'Nunito', 'Cairo', sans-serif;
+  --font-display: 'Cormorant Garamond', 'Playfair Display', 'Tajawal', serif;
+  --font-body: 'Tajawal', 'Nunito', sans-serif;
+  --font-serif: 'Cormorant Garamond', 'Playfair Display', serif;
+  --font-arabic: 'Tajawal', sans-serif;
   
   /* Pink & White Color Palette */
   --bg-soft-pink: #fff0f3;
@@ -253,16 +255,21 @@ body {
 }
 
 .top-title {
-  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.5vw, 3.5rem);
   color: var(--text-heading);
-  line-height: 1.1;
-  font-weight: 700;
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .bottom-title {
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 4.2vw, 2.6rem);
   color: var(--text-heading);
-  line-height: 1.1;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 /* حاوية صورة الظرف — مع الاحتفاظ بالألوان الأصلية */
@@ -386,9 +393,12 @@ body {
 }
 
 .message-paragraph {
-  font-size: clamp(1.3rem, 3.4vw, 1.58rem);
+  font-family: var(--font-display);
+  font-size: clamp(1.22rem, 3.2vw, 1.48rem);
   color: var(--text-body);
-  line-height: 1.8;
+  line-height: 1.85;
+  font-weight: 400;
+  letter-spacing: 0.2px;
   margin: 0;
   white-space: pre-line;
   word-break: break-word;
@@ -406,12 +416,14 @@ body {
 }
 
 .pink-pill-btn {
+  font-family: var(--font-display);
   background: linear-gradient(135deg, #f472b6 0%, #db2777 100%);
   color: var(--white);
   border: none;
-  font-size: clamp(1.4rem, 3.5vw, 1.8rem);
-  font-weight: 700;
-  padding: 14px 42px;
+  font-size: clamp(1.35rem, 3.5vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 13px 40px;
   border-radius: 40px;
   cursor: pointer;
   box-shadow: var(--pink-btn-shadow);
